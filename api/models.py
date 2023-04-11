@@ -17,3 +17,7 @@ class History(models.Model):
     drug = models.CharField(max_length=255)
     time = models.DateTimeField()
     openid = models.CharField(max_length=255)
+
+class recommend(models.Model):
+    diseasename=models.CharField(max_length=255)
+    drugname=models.CharField(max_length=255)

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 import numpy as np
 from FaderatedLearning.classifier import classifier as cl
 from django.shortcuts import render
-from api.models import User, History
+from api.models import User, History,recommend
 
 
 def describe_to_symptom(describe):
@@ -119,7 +119,7 @@ class ResultView(APIView):
         print(symptom)
         rate, disease = cl.Classifier(symptom)
         print(rate)
-        reconmend = {
+        '''reconmend = {
             '干眼症': '人工泪液',
             '脚气': '克霉唑乳膏',
             '高血压': '阿米洛利',
@@ -127,14 +127,17 @@ class ResultView(APIView):
             '飞蚊症': '氨碘肽滴眼液',
             '风寒感冒': '清开灵口服液、感冒清热颗粒',
             '风热感冒': '蓝芩口服液、银翘解毒颗粒'
-        }
+        }'''
         result = {'rate': 0, 'disease': '', 'drug_name': '对不起，您输入的症状涉及到本系统未知领域'}
         if rate > '16':
             result['rate'] = rate
             result['disease'] = disease
-        for key in reconmend.keys():
+        QuerySet = recommend.objects.filter(diseasename=result['disease']).first()
+        if QuerySet:
+            result['drug_name']=QuerySet.drugname
+        '''for key in reconmend.keys():
             if key == result['disease']:
-                result['drug_name'] = reconmend[key]
+                result['drug_name'] = reconmend[key]'''
         # return Response({"status":True})
 
         # 接下来是写历史记录
@@ -181,5 +184,6 @@ class history(APIView):
 class test(APIView):
     # post固定写法
     def get(self, request, *args, **kwargs):
-        User.objects.create(username='1', openid='2')
+        QuerySet = recommend.objects.filter(diseasename='风寒感冒')
+        print(QuerySet[0].diseasename)
         return render(request, "back_management.html")
