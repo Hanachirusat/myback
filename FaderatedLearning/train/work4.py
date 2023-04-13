@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pandas as pd
 from FaderatedLearning.tool import tool as tool
@@ -5,7 +7,7 @@ from FaderatedLearning.tool import tool as tool
 
 def work4(theta):
     #数据读取部分
-    data = pd.read_csv('../Data/data2.csv')
+    data = pd.read_csv('../Data/data2_new.csv')
     data.head()
     X = data.iloc[:, :35]
     y=data.iloc[:,35:36]
@@ -18,7 +20,7 @@ def work4(theta):
     lamda=1
     cost = tool.reg_cost(theta, X, Y, lamda)
     res = tool.nn_training(theta, X, Y, lamda)
-
+    time.sleep(0.02) #使得分布式计算缩短的时间更明显
     return res.x,cost
 
 

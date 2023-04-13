@@ -7,8 +7,11 @@ from FaderatedLearning.tool import tool as tool
 import ray
 import work1
 import work2
+import work3
+import work4
 from sklearn.metrics import precision_score, recall_score
 from sklearn.metrics import f1_score
+
 
 
 # 把多分类根据某个类别变为二分类 index代表类别
@@ -26,13 +29,13 @@ def MultipleToBinary(Y, index):
 # 对最终得到的theta参数进行测试，此时的theta为(n,)类型
 def test(theta):
     # 读取数据
-    data = pd.read_csv('../Data/data.csv')
+    data = pd.read_csv('../Data/data_cv.csv')
     data.head()
     X = data.iloc[:, :35]
     y = data.iloc[:, 35:36]
     X = np.array(X)  # X为原始数据，二维数组表示
     y = np.array(y)  # Y为原始数据，列向量表示
-    raw_y = y.reshape(444, )  # 行向量  ps可以认为（444，1）是列向量 （444，0）是行向量
+    raw_y = y.reshape(len(y), )  # 行向量  ps可以认为（444，1）是列向量 （444，0）是行向量
     X = np.insert(X, 0, values=1, axis=1)
     Y = tool.one_hot_encoder(y)  # Y为热编码之后的数据，是一个二维数组（神经网络特供）
 
@@ -94,9 +97,9 @@ FinalTheta = np.zeros(1082)
 theta = np.random.uniform(-0.5, 0.5, 1082)
 
 # -------------------学习阶段--------------------
-# 开始联邦学习模拟过程，并记录过程所需时间
 start_time = time.time()
-for i in range(400):
+# =================开始联邦学习模拟过程，并记录过程所需时间===================
+'''for i in range(400):
     # 下面work1和work2并行执行
     work1_id = work1.work1.remote(theta)
     work2_id = work2.work2.remote(theta)
@@ -110,18 +113,20 @@ for i in range(400):
     # 对获取到的结果进行加权平均，并且记录cost
     theta = (theta1 + theta2) / 2
     costs.append((cost1 + cost2) / 2)
-print('执行时间为:{0}'.format(time.time() - start_time))
+    print(f'第{i}轮迭代结束\tcosts：{(cost1 + cost2) / 2}...')
+print('执行时间为:{0}'.format(time.time() - start_time))'''
 
-# 下面是非并行计算下所需的时间，过程和并行计算下一致
-'''
-for i in range(600):
+# ==============下面是非并行计算下所需的时间，过程和并行计算下一致=================
+
+for i in range(400):
      theta1,cost1 = work3.work3(theta)
      theta2,cost2 = work4.work4(theta)
      theta=theta1+theta2
      theta=theta/2
      costs.append((cost1+cost2)/2)
+     print(f'第{i}轮迭代结束\tcosts：{(cost1 + cost2) / 2}...')
 print('执行时间为:{0}'.format(time.time()-start_time))
-'''
+
 
 # -------------------评测阶段--------------------
 # PRF评测
