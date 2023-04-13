@@ -142,6 +142,7 @@ class ResultView(APIView):
 
         # 接下来是写历史记录
         now_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        print(f'now_time:================={now_time}')
         History.objects.create(name=name, sex=sex, age=age, describe=describe, rate=rate, disease=disease,
                                drug=result['drug_name'], time=now_time, openid=openid)
         return Response(result)
@@ -159,13 +160,14 @@ class loginview(APIView):
         QuerySet = User.objects.filter(openid=data['openid'])
         if QuerySet.count() == 0:
             User.objects.create(username=data['username'], openid=data['openid'])
-
         # 返回的时候返回的是一个字典，Response会把字典封装成json数据
         result = {'status': '登陆成功', 'openid': ''}
         result['openid'] = data['openid']
         return Response(result)
 
 
+# 该类的url为http://127.0.0.1:8000/api/history/
+#获取历史记录
 class history(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -174,8 +176,10 @@ class history(APIView):
         if QuerySet.count() == 0:
             return Response(result)
         for item in QuerySet:
+            # 时间格式的化前端显示有时区，有点奇怪，并且前端不好格式化时间显示，因此后端把时间类型取出来后转化为字符串，然后再传给前端
+            t=item.time.strftime("%Y-%m-%d %H:%M:%S")
             mid = {'name': item.name, 'sex': item.sex, 'age': item.age, 'describe': item.describe, 'rate': item.rate,
-                   'disease': item.disease, 'drug': item.drug, 'time': item.time}
+                   'disease': item.disease, 'drug': item.drug, 'time': t}
             result.append(mid)
         return Response(result)
 
